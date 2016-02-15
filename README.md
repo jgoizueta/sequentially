@@ -7,8 +7,8 @@
 This module allows writing deeply-nested asynchronous
 code in CoffeeScript in a sequential manner.
 
-This is similar to (step)[https://www.npmjs.com/package/step]
-or (async-queue)[https://www.npmjs.com/package/async-queue],
+This is similar to [step](https://www.npmjs.com/package/step)
+or [async-queue](https://www.npmjs.com/package/async-queue),
 but designed to be used with CoffeeScript.
 
 Steps to be executed sequentially are defined in a declarative manner:
