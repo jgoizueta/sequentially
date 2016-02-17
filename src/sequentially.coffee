@@ -4,7 +4,7 @@ class Sequentially
     @error_handler = null
   step: (f) ->
     @steps.push f
-  error: (f) ->
+  on_error: (f) ->
     @error_handler = f
   next: (args...) ->
     @steps.shift()? args...

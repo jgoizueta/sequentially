@@ -75,7 +75,7 @@ describe 'sequentially', ->
       @step (v) ->
         assert.ok false
         done()
-      @error (err) ->
+      @on_error (err) ->
         assert.equal err, 'error'
         assert.deepEqual data, [1, 2]
         done()
