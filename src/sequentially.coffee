@@ -2,29 +2,24 @@ class Sequentially
   constructor: ->
     @steps = []
     @error_handler = null
-    @context = new SequentialContext(this)
   step: (f) ->
     @steps.push f
   error: (f) ->
     @error_handler = f
+  next: (args...) ->
+    @steps.shift()? args...
   run: ->
-    @_call_next()
-  _call_next: (args) ->
-    @steps.shift?().apply @context, args
-  _raise_error: (err) ->
-    @steps = []
-    if @error_handler
-      @error_handler err
-    else
-      throw err
-
-  class SequentialContext
-    constructor: (sequence) ->
-      @sequence = sequence
-    next: (args...) =>
-      @sequence._call_next(args)
-    error: (err) ->
-      @sequence._raise_error(err)
+    sequence = this
+    done_handler = (err, args...) ->
+      if err
+        if sequence.error_handler
+          sequence.error_handler err
+        else
+          throw err
+      else
+        args.push done_handler
+        sequence.next args...
+    @next done_handler
 
 sequentially = (f) ->
   sequence = new Sequentially

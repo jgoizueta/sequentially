@@ -6,47 +6,46 @@ describe 'sequentially', ->
   it "should execute synchronous operations sequentially", (done) ->
     data  = []
     sequentially ->
-      @step ->
+      @step (done) ->
         v = 1
         data.push v
-        @next v
-      @step (v) ->
+        done null, v
+      @step (v, done) ->
         v += 1
         data.push v
-        @next v
-      @step (v) ->
+        done null, v
+      @step (v, done) ->
         v += 1
         data.push v
-        @next v
-      @step (v) ->
+        done null, v
+      @step (v, done) ->
         v += 1
         data.push v
-        @next v
+        done null, v
       @step (v) ->
         assert.equal v, 4
         assert.deepEqual data, [1, 2, 3, 4]
-        done()
+        done null
 
   it "should execute asynchronous operations sequentially", (done) ->
     data  = []
     sequentially ->
-      @step ->
+      @step (done) ->
         v = 1
         data.push v
-        setTimeout (=> @next(v)), 50
-        @next v
-      @step (v) ->
+        setTimeout (-> done null, v), 50
+      @step (v, done) ->
         v += 1
         data.push v
-        setTimeout @next, 50
-      @step  ->
+        setTimeout done, 50, null, v
+      @step (v, done) ->
         v = data.length + 1
         data.push v
-        @next v
-      @step (v) ->
+        done null, v
+      @step (v, done) ->
         v += 1
         data.push 4
-        @next v
+        done null, v
       @step (v) ->
         assert.equal v, 4
         assert.deepEqual data, [1, 2, 3, 4]
@@ -55,26 +54,24 @@ describe 'sequentially', ->
   it "should handle errors", (done) ->
     data  = []
     sequentially ->
-      @step ->
+      @step (done) ->
         v = 1
         data.push v
-        setTimeout (=> @next(v)), 50
-        @next v
-      @step (v) ->
+        setTimeout (-> done null, v), 50
+      @step (v, done) ->
         v += 1
         data.push v
-        @error 'error'
-        setTimeout @next, 50
-      @step  ->
+        done 'error'
+      @step  (done) ->
         v = data.length
         data.push v
         assert.ok false
-        @next v
-      @step (v) ->
+        done null, v
+      @step (v, done) ->
         v += 1
         data.push 4
         assert.ok false
-        @next v
+        done null, v
       @step (v) ->
         assert.ok false
         done()
