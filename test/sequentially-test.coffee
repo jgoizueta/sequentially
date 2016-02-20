@@ -79,3 +79,17 @@ describe 'sequentially', ->
         assert.equal err, 'error'
         assert.deepEqual data, [1, 2]
         done()
+
+  it "should be able to define the scope", (done) ->
+    @_outer_value = 123
+    data  = []
+    sequentially scope: this, ->
+      @step (done) ->
+        assert.equal @_outer_value, 123
+        done null
+      @step (done) ->
+        assert.equal @_outer_value, 123
+        done 'error'
+      @on_error (err) ->
+        assert.equal @_outer_value, 123
+        done()
