@@ -69,3 +69,26 @@ sequentially ->
   @error (err) ->
     console.log "ERROR", err
 ```
+
+Or, since version 2.1, you can simply use the `scope` options
+that defines the `this` value with which the steps are executed:
+
+```coffeescript
+sequentially = require 'sequentially'
+sequentially (scope: this) ->
+  @step (done) ->
+    console.log "FIRST"
+    @f() # 'this' has the same value as in the outer scope
+    done null, 1
+  @step (value, done) ->
+    console.log "SECOND: ", value
+    done value + 1
+  @step (value, done) ->
+    console.log "THIRD", value
+    setTimeout @next, 2000, null, value
+  @step (value, done) ->
+    console.log "FOURTH", value
+    done
+  @error (err) ->
+    console.log "ERROR", err
+```
