@@ -66,16 +66,16 @@ sequentially ->
   @step (value, done) ->
     console.log "FOURTH", value
     done
-  @error (err) ->
+  @on_error (err) ->
     console.log "ERROR", err
 ```
 
-Or, since version 2.1, you can simply use the `scope` options
+Alternatively, you can use the `scope` option
 that defines the `this` value with which the steps are executed:
 
 ```coffeescript
 sequentially = require 'sequentially'
-sequentially (scope: this) ->
+sequentially scope: this, ->
   @step (done) ->
     console.log "FIRST"
     @f() # 'this' has the same value as in the outer scope
@@ -89,6 +89,69 @@ sequentially (scope: this) ->
   @step (value, done) ->
     console.log "FOURTH", value
     done
-  @error (err) ->
+  @on_error (err) ->
+    console.log "ERROR", err
+```
+
+Instead of having the `step` and `on_error` methods
+available through `this`, a *block* parameter can be
+used like this:
+
+```coffeescript
+sequentially = require 'sequentially'
+sequentially (block) ->
+  block.step (done) ->
+    console.log "FIRST"
+    done null, 1
+  block.step (value, done) ->
+    console.log "SECOND", value
+    setTimeout done, 2000, null, value
+  block.step (value, done) ->
+    console.log "THIRD", value
+    done null
+  block.on_error (err) ->
+    console.log "ERROR", err
+```
+
+Separate arguments for the `step` and `on_error` methods
+can be used instead, also:
+
+```coffeescript
+sequentially = require 'sequentially'
+sequentially (step, on_error) ->
+  step (done) ->
+    console.log "FIRST"
+    done null, 1
+  step (value, done) ->
+    console.log "SECOND", value
+    setTimeout done, 2000, null, value
+  step (value, done) ->
+    console.log "THIRD", value
+    done null
+  on_error (err) ->
+    console.log "ERROR", err
+```
+
+This way of avoiding fixing the `this` of the
+step and error functions
+allows using the fat arrow operator effectively:
+
+```coffeescript
+sequentially = require 'sequentially'
+sequentially (step, on_error) =>
+  step (done) =>
+    console.log "FIRST"
+    @f() # 'this' has the same value as in the outer scope
+    done null, 1
+  step (value, done) =>
+    console.log "SECOND: ", value
+    done value + 1
+  step (value, done) =>
+    console.log "THIRD", value
+    setTimeout @next, 2000, null, value
+  step (value, done) =>
+    console.log "FOURTH", value
+    done
+  on_error (err) =>
     console.log "ERROR", err
 ```

@@ -27,7 +27,14 @@ sequentially = (options, f) ->
     f = options
     options = {}
   sequence = new Sequentially(options)
-  f.call sequence
+  if f.length == 0
+    f.call sequence
+  else if f.length == 1
+    f sequence
+  else
+    step = (args...) -> sequence.step args...
+    error = (args...) -> sequence.on_error args...
+    f step, error
   sequence.run()
 
 module.exports = sequentially
